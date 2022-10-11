@@ -7,7 +7,7 @@ use std::io::{self, Stdout};
 use tui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Layout},
-    style::{Color, Style},
+    style::{Color, Style, Modifier},
     widgets::{Block, Borders, Cell, Row, Table, TableState},
     Frame, Terminal,
 };
@@ -75,7 +75,7 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .split(f.size());
 
     // Create table
-    let selected_style = Style::default().bg(Color::DarkGray);
+    let selected_style = Style::default().bg(Color::DarkGray).add_modifier(Modifier::BOLD);
     let normal_style = Style::default().bg(Color::White);
     let header_cells = ["Run?", "Script", "Description"]
         .iter()
@@ -92,7 +92,7 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         let dynamic_size: u16 = f.size().width - (cell_1 + cell_2 + padding);
         let f_description = format(
             item.description.clone().unwrap(),
-            (dynamic_size - padding).try_into().unwrap(),
+            dynamic_size - padding,
         );
 
         let cells = vec![
@@ -118,7 +118,6 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .header(header)
         .block(Block::default().borders(Borders::ALL).title(""))
         .highlight_style(selected_style)
-        .highlight_symbol(">")
         .widths(&constraints);
 
     f.render_stateful_widget(t, rects[0], &mut app.state);
@@ -153,7 +152,7 @@ pub struct App {
     pub scripts: Vec<Script>,
 }
 
-impl<'a> App {
+impl App {
     pub fn new() -> App {
         App {
             state: TableState::default(),
