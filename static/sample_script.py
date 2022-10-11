@@ -1,4 +1,4 @@
-# Title: sample script
+# Title: Sample script
 # Description: Sample script to show how to use the templates
 # Version: 99.99.99
 # Arguments: 

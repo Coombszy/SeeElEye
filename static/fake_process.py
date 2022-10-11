@@ -1,19 +1,15 @@
-# Title: Favicon MD5 Check
-# Description: Checks webpage if the Favicon is a generic pre-supplied one
-# Version: v0.0.1
+# Title: Fake process
+# Description: Fake script that fakes execution taking {TIME} amount of time
+# Version: 99.99.99
 # Arguments: 
-#   - URL
+#   - TIME
 ##########################################################################################
 # Using shared lib, import and validate arguments
-list = ["URL"] 
+list = ["TIME"] 
 from lib.args import args
 args = args(list)
 ##########################################################################################
-import requests
-
-target_url = args["URL"]
-print(f"Target URL: {target_url}")
-
-page = requests.get(target_url)
-
-print(page)
+import time
+time.sleep(int(args["TIME"]))
+print("Wait finished!")
+exit(0)

@@ -3,7 +3,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use std::io::{self, Stdout};
+use std::{io::{self, Stdout}, error::Error};
 use tui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Layout},
@@ -25,7 +25,7 @@ pub fn create_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>, io::Error
 }
 
 /// Restore terminal after application finish
-pub fn restore_terminal(mut terminal: Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Error> {
+pub fn restore_terminal(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Error> {
     disable_raw_mode()?;
     execute!(
         terminal.backend_mut(),
@@ -36,24 +36,30 @@ pub fn restore_terminal(mut terminal: Terminal<CrosstermBackend<Stdout>>) -> Res
     Ok(())
 }
 
+pub fn exit(terminal: &mut Terminal<CrosstermBackend<Stdout>>) {
+    restore_terminal(terminal).unwrap();
+    std::process::exit(0);
+}   
+
 /// Handles app core loop
-pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
+pub fn run_table_app(terminal: &mut Terminal<CrosstermBackend<Stdout>>, mut app: TableApp) -> io::Result<Vec<Script>> {
     loop {
         terminal.draw(|f| table_ui(f, &mut app))?;
 
         if let Event::Key(key) = event::read()? {
             if key.modifiers == KeyModifiers::CONTROL {
                 match key.code {
-                    KeyCode::Char('c') => return Ok(()),
+                    KeyCode::Char('c') => exit(terminal),
                     _ => {}
                 }
             } else {
                 match key.code {
-                    KeyCode::Char('q') => return Ok(()),
-                    KeyCode::Esc => return Ok(()),
+                    KeyCode::Char('q') => exit(terminal),
+                    KeyCode::Esc => exit(terminal),
                     KeyCode::Down => app.next(),
                     KeyCode::Up => app.previous(),
                     KeyCode::Char(' ') => app.toggle(),
+                    KeyCode::Enter => return Ok(app.scripts),
                     _ => {}
                 }
             }
@@ -62,7 +68,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Resu
 }
 
 /// Controls ui for app
-fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
     let full_width = f.size().width - 2;
 
     let cell_1 = 5;
@@ -146,14 +152,14 @@ fn format(content: String, limit: u16) -> (String, u16) {
 // Structs/Impls
 ////////////////////////////////////////////
 
-pub struct App {
+pub struct TableApp {
     state: TableState,
     pub scripts: Vec<Script>,
 }
 
-impl App {
-    pub fn new() -> App {
-        App {
+impl TableApp {
+    pub fn new() -> TableApp {
+        TableApp {
             state: TableState::default(),
             scripts: vec![],
         }
