@@ -1,47 +1,15 @@
-use std::{fs::File, io::{BufReader, BufRead}};
+use std::{io, thread, time::Duration};
 
-use libs::structs::Script;
 mod libs;
+use libs::ui::{create_terminal, restore_terminal, run_app, App};
+use libs::utils::load_scripts;
 
-fn main() {
+fn main() -> Result<(), io::Error> {
+    let mut terminal = create_terminal().unwrap();
 
-    let file_path = "./static/favicon.py";
+    let mut app = App::new();
+    app.scripts = load_scripts("./static".to_string());
+    let res = run_app(&mut terminal, app);
 
-    // Testing
-    let file = File::open(file_path).expect("Should be able to open file");
-    let reader = BufReader::new(file);
-
-    let mut script = Script{ title: None, description: None, version: None, arguments: vec![], script_location: None };
-
-    let mut arg_processing = false;
-
-    for line in reader.lines() {
-        let content = line.unwrap();
-        let trimmed = content.trim_start_matches("# ");
-        // If end of meta data section, escape
-        if trimmed.contains("##########") {
-            break;
-        }
-        if arg_processing {
-            let arg = trimmed.trim_start_matches("  - ");
-            script.add_arguement(arg.to_string());
-            continue;
-        }
-        // Ingest script metadata
-        if Script::is_title(trimmed) {
-            script.set_title(trimmed.to_string());
-        }
-        else if Script::is_description(trimmed) {
-            script.set_description(trimmed.to_string())
-        }
-        else if Script::is_version(trimmed) {
-            script.set_version(trimmed.to_string())
-        }
-        else if Script::is_argument(trimmed) {
-            arg_processing = true;
-        }
-    }
-
-    println!("{:?}", script);
-
+    Ok(restore_terminal(terminal).unwrap())
 }

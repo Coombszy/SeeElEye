@@ -6,10 +6,10 @@
 ##########################################################################################
 # Using shared lib, import and validate arguments
 list = ["URL"] 
-from urllib import response
 from lib.args import args
 args = args(list)
 ##########################################################################################
+from urllib import response
 import requests
 
 target_url = args["URL"]

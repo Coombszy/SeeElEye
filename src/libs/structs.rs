@@ -4,11 +4,11 @@ pub struct Script {
     pub description: Option<String>,
     pub version: Option<String>,
     pub arguments: Vec<String>,
-    pub script_location: Option<String>
+    pub script_location: Option<String>,
+    pub enabled: bool,
 }
 
 impl Script {
-
     pub fn set_title(&mut self, content: String) {
         self.title = Some(content.trim_start_matches("Title: ").to_string());
     }
