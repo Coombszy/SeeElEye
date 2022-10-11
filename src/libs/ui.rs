@@ -3,7 +3,10 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use std::{io::{self, Stdout}, error::Error};
+use std::{
+    error::Error,
+    io::{self, Stdout},
+};
 use tui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Layout},
@@ -25,7 +28,9 @@ pub fn create_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>, io::Error
 }
 
 /// Restore terminal after application finish
-pub fn restore_terminal(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Error> {
+pub fn restore_terminal(
+    terminal: &mut Terminal<CrosstermBackend<Stdout>>,
+) -> Result<(), io::Error> {
     disable_raw_mode()?;
     execute!(
         terminal.backend_mut(),
@@ -39,10 +44,13 @@ pub fn restore_terminal(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> Re
 pub fn exit(terminal: &mut Terminal<CrosstermBackend<Stdout>>) {
     restore_terminal(terminal).unwrap();
     std::process::exit(0);
-}   
+}
 
 /// Handles app core loop
-pub fn run_table_app(terminal: &mut Terminal<CrosstermBackend<Stdout>>, mut app: TableApp) -> io::Result<Vec<Script>> {
+pub fn run_table_app(
+    terminal: &mut Terminal<CrosstermBackend<Stdout>>,
+    mut app: TableApp,
+) -> io::Result<Vec<Script>> {
     loop {
         terminal.draw(|f| table_ui(f, &mut app))?;
 
