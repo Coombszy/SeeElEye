@@ -15,7 +15,7 @@ import requests
 target_url = args["URL"]
 
 # Pretend to be chrome browser
-response = requests.get(target_url, headers={'User-Agent': 'Google Chrome'})
+response = requests.head(target_url, headers={'User-Agent': 'Google Chrome'}, allow_redirects=True)
 redirect = False
 hop_url = None
 hop_status = None
