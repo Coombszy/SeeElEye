@@ -7,7 +7,7 @@ use std::io::{self, Stdout};
 use tui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Layout},
-    style::{Color, Style, Modifier},
+    style::{Color, Modifier, Style},
     widgets::{Block, Borders, Cell, Row, Table, TableState},
     Frame, Terminal,
 };
@@ -75,7 +75,9 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .split(f.size());
 
     // Create table
-    let selected_style = Style::default().bg(Color::DarkGray).add_modifier(Modifier::BOLD);
+    let selected_style = Style::default()
+        .bg(Color::DarkGray)
+        .add_modifier(Modifier::BOLD);
     let normal_style = Style::default().bg(Color::White);
     let header_cells = ["Run?", "Script", "Description"]
         .iter()
@@ -90,10 +92,7 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         let f_title = format(item.title.clone().unwrap(), cell_2 - padding);
 
         let dynamic_size: u16 = f.size().width - (cell_1 + cell_2 + padding);
-        let f_description = format(
-            item.description.clone().unwrap(),
-            dynamic_size - padding,
-        );
+        let f_description = format(item.description.clone().unwrap(), dynamic_size - padding);
 
         let cells = vec![
             Cell::from(enabled_state),

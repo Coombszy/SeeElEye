@@ -1,4 +1,4 @@
-use std::{io};
+use std::io;
 
 mod libs;
 use libs::ui::{create_terminal, restore_terminal, run_app, App};
