@@ -7,9 +7,8 @@ use std::io::{self, Stdout};
 use tui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Layout},
-    style::{Color, Modifier, Style},
-    text::Span,
-    widgets::{Block, Borders, Cell, Paragraph, Row, Table, TableState},
+    style::{Color, Style},
+    widgets::{Block, Borders, Cell, Row, Table, TableState},
     Frame, Terminal,
 };
 
@@ -72,7 +71,7 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let padding = 2;
 
     let rects = Layout::default()
-        .constraints([Constraint::Length(full_width.clone())].as_ref())
+        .constraints([Constraint::Length(full_width)].as_ref())
         .split(f.size());
 
     // Create table
@@ -137,12 +136,12 @@ fn format(content: String, limit: u16) -> (String, u16) {
 
         count += 1;
         if count == limit {
-            formatted.push_str("\n");
+            formatted.push('\n');
             count = 0;
             splits += 1;
         }
     }
-    return (formatted.to_string(), splits);
+    (formatted.to_string(), splits)
 }
 
 ////////////////////////////////////////////
@@ -190,11 +189,8 @@ impl<'a> App {
     }
 
     pub fn toggle(&mut self) {
-        match self.state.selected() {
-            Some(i) => {
-                self.scripts[i].enabled = !self.scripts[i].enabled;
-            }
-            _ => (),
+        if let Some(i) = self.state.selected() {
+            self.scripts[i].enabled = !self.scripts[i].enabled
         }
     }
 }

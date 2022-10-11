@@ -1,4 +1,4 @@
-use std::{io, thread, time::Duration};
+use std::{io};
 
 mod libs;
 use libs::ui::{create_terminal, restore_terminal, run_app, App};
@@ -9,7 +9,8 @@ fn main() -> Result<(), io::Error> {
 
     let mut app = App::new();
     app.scripts = load_scripts("./static".to_string());
-    let res = run_app(&mut terminal, app);
+    let _res = run_app(&mut terminal, app);
 
-    Ok(restore_terminal(terminal).unwrap())
+    restore_terminal(terminal).unwrap();
+    Ok(())
 }

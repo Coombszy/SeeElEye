@@ -62,5 +62,5 @@ pub fn load_scripts(file_dir: String) -> Vec<Script> {
     files.retain(|file| file.contains(".py"));
 
     // Return file paths mapped to vec<Script>
-    files.iter().map(|file| load_script(file)).collect()
+    files.iter().map(load_script).collect()
 }
