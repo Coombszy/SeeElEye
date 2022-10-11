@@ -64,7 +64,6 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Resu
 
 /// Controls ui for app
 fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
-
     let full_width = f.size().width - 2;
 
     let cell_1 = 5;
@@ -89,30 +88,32 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             enabled_state = " X";
         }
 
-        let f_title = format(item.title.clone().unwrap(), cell_2 - padding); 
+        let f_title = format(item.title.clone().unwrap(), cell_2 - padding);
 
         let dynamic_size: u16 = f.size().width - (cell_1 + cell_2 + padding);
-        let f_description = format(item.description.clone().unwrap(), (dynamic_size-padding).try_into().unwrap());
+        let f_description = format(
+            item.description.clone().unwrap(),
+            (dynamic_size - padding).try_into().unwrap(),
+        );
 
         let cells = vec![
             Cell::from(enabled_state),
             Cell::from(f_title.0),
             Cell::from(f_description.0),
         ];
-        // Use the bigger cell height 
+        // Use the bigger cell height
         if f_title.1 > f_description.1 {
-            Row::new(cells).height(f_title.1+1)
-        }
-        else {
-            Row::new(cells).height(f_description.1+1)
+            Row::new(cells).height(f_title.1 + 1)
+        } else {
+            Row::new(cells).height(f_description.1 + 1)
         }
     });
 
     let constraints = [
-            Constraint::Length(cell_1),
-            Constraint::Length(cell_2),
-            Constraint::Length(full_width),
-        ];
+        Constraint::Length(cell_1),
+        Constraint::Length(cell_2),
+        Constraint::Length(full_width),
+    ];
 
     let t = Table::new(rows)
         .header(header)
@@ -125,14 +126,13 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 }
 
 /// Splits the content of a string based on the limit.
-/// Returns a tuple of the split string and the number 
+/// Returns a tuple of the split string and the number
 /// of splits required.
 fn format(content: String, limit: u16) -> (String, u16) {
     let mut formatted = "".to_string();
     let mut count = 0;
     let mut splits = 0;
     for c in content.chars() {
-
         formatted.push(c);
 
         count += 1;
@@ -142,7 +142,7 @@ fn format(content: String, limit: u16) -> (String, u16) {
             splits += 1;
         }
     }
-    return (formatted.to_string(), splits)
+    return (formatted.to_string(), splits);
 }
 
 ////////////////////////////////////////////
