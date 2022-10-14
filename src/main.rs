@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::format;
+
 use std::io::{self, stdin};
 use std::process::exit;
 
@@ -28,7 +28,7 @@ fn main() -> Result<(), io::Error> {
     }
 
     // Any scripts selected?
-    if scripts.len() == 0 {
+    if scripts.is_empty() {
         println!("No scripts were selected");
         exit(1);
     }
