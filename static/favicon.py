@@ -2,16 +2,16 @@
 # Description: Checks webpage if the Favicon is a generic pre-supplied one
 # Version: v0.0.1
 # Arguments: 
-#   - URL
+#   - HTTPS_URL
 ##########################################################################################
 # Using shared lib, import and validate arguments
-list = ["URL"] 
+list = ["HTTPS_URL"] 
 from lib.args import args
 args = args(list)
 ##########################################################################################
 import requests
 
-target_url = args["URL"]
+target_url = args["HTTPS_URL"]
 print(f"Target URL: {target_url}")
 
 page = requests.get(target_url)

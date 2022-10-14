@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use std::io::{self, stdin};
 use std::process::exit;
+use std::str::from_utf8;
 use std::sync::mpsc::Receiver;
 use std::thread;
 use std::time::Duration;
@@ -11,21 +12,24 @@ use libs::select_ui::{create_terminal, restore_terminal, run_table_app, TableApp
 use libs::utils::load_scripts;
 use libs::structs::Status;
 
+use crate::libs::python::{validate_python, run_script};
 use crate::libs::structs::{ScriptRuntime, ScriptState};
 use crate::libs::utils::create_runtimes;
 
 fn main() -> Result<(), io::Error> {
-    // let mut terminal = create_terminal().unwrap();
+
+    validate_python();
+
+    let mut terminal = create_terminal().unwrap();
     // Use chooses what scripts to be ran
-    // let mut app = TableApp::new();
-    // app.scripts = load_scripts("./static".to_string());
-    // let mut scripts = run_table_app(&mut terminal, app).expect("Failed to return scripts from ui");
-    // restore_terminal(&mut terminal).unwrap();
-
+    let mut app = TableApp::new();
+    app.scripts = load_scripts("./static".to_string());
+    let mut scripts = run_table_app(&mut terminal, app).expect("Failed to return scripts from ui");
+    restore_terminal(&mut terminal).unwrap();
+    
     // DEBUGGING ONLY! DELETE ME! ------------------------------------------------------------------------------
-    let mut scripts = load_scripts("./static".to_string());
-    scripts[0].enabled = true; // Set first one to be enabled, no idea which one :)
-
+    // let mut scripts = load_scripts("./static".to_string());
+    // scripts[0].enabled = true; // Set first one to be enabled, no idea which one :)
 
     clearscreen::clear().expect("Failed to clear terminal");
 
@@ -71,25 +75,25 @@ fn main() -> Result<(), io::Error> {
     }
 
     // Get all script runtimes and receiver
-    let (runtimes, rx): (Vec<ScriptRuntime>, Receiver<ScriptState>) = create_runtimes(scripts);
+    let (runtimes, rx): (Vec<ScriptRuntime>, Receiver<ScriptState>) = create_runtimes(scripts, arguments);
 
     for mut r in runtimes {
-
         let handle = thread::spawn(move || {
+            let mut state = ScriptState { script: r.script.clone(), status: Status::RUNNING, output: None};
+            r.transmitter.send(state.clone()).expect("Failed to transmit script state");
             
-            let mut ss: ScriptState = ScriptState { script: r.script.clone(), status: Status::STARTING, output: "".to_string() };
-
-            r.transmitter.send(ss.clone()).expect("Failed to transmit Script state");
-
-            for _ in 1..3 {
-                thread::sleep(Duration::from_secs(5));
-                ss.status = Status::RUNNING;
-                r.transmitter.send(ss.clone()).expect("Failed to transmit Script state");
+            let output = run_script(&r.script, &r.arguments).expect("Failed to get script execution result");
+            if output.status.success() {
+                let data = format!("{}", from_utf8(&output.stdout).unwrap().trim());
+                state.status = Status::SUCCESS;
+                state.output = Some(data);
             }
-            thread::sleep(Duration::from_secs(5));
-            ss.status = Status::FINISHED;
-            r.transmitter.send(ss.clone()).expect("Failed to transmit Script state");
-
+            else {
+                let data = format!("{}", from_utf8(&output.stderr).unwrap().trim());
+                state.status = Status::FAILED;
+                state.output = Some(data);
+            }
+            r.transmitter.send(state.clone()).expect("Failed to transmit script state");
 
         });
 
@@ -98,7 +102,11 @@ fn main() -> Result<(), io::Error> {
     }
 
     for received in rx {
-        println!("-> {:?}", received);
+        let output = match received.output {
+            Some(e) => e,
+            _ => "".to_string()
+        };
+        println!("Script: {} | Status: {:?} | Output: {} ", received.script.title.unwrap(), received.status, output);
     }
 
     Ok(())

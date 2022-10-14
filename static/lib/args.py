@@ -17,7 +17,9 @@ def args(list_arguments):
     for arg in list_arguments:
         parser.add_argument("-"+arg)
     dict = {}
-    parsed = vars(parser.parse_args())
+    # Throw out unknown args
+    known_args, _ = parser.parse_known_args()
+    parsed = vars(known_args)
     for p_arg in parsed:
         dict[p_arg] = parsed[p_arg]
     failed = False

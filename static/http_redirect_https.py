@@ -2,17 +2,17 @@
 # Description: Checks if a website redirects to https
 # Version: v0.0.1
 # Arguments: 
-#   - URL
+#   - HTTP_URL
 ##########################################################################################
 # Using shared lib, import and validate arguments
-list = ["URL"] 
+list = ["HTTP_URL"] 
 from lib.args import args
 args = args(list)
 ##########################################################################################
 from urllib import response
 import requests
 
-target_url = args["URL"]
+target_url = args["HTTP_URL"]
 
 # Pretend to be chrome browser
 response = requests.head(target_url, headers={'User-Agent': 'Google Chrome'}, allow_redirects=True)

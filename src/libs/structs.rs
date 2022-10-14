@@ -1,4 +1,4 @@
-use std::{thread::JoinHandle, sync::mpsc::Sender};
+use std::{thread::JoinHandle, sync::mpsc::Sender, collections::HashMap};
 
 #[derive(Debug, Clone)]
 pub struct Script {
@@ -42,9 +42,8 @@ impl Script {
 
 #[derive(Debug, Clone)]
 pub enum Status {
-    STARTING,
     RUNNING,
-    FINISHED,
+    SUCCESS,
     FAILED
 }
 
@@ -52,12 +51,13 @@ pub enum Status {
 pub struct ScriptState {
     pub script: Script,
     pub status: Status,
-    pub output: String,
+    pub output: Option<String>,
 }
 
 #[derive(Debug)]
 pub struct ScriptRuntime {
     pub script: Script,
+    pub arguments: HashMap<String, String>,
     pub handle: Option<JoinHandle<()>>,
     pub transmitter: Sender<ScriptState>
 }

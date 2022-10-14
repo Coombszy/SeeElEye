@@ -2,7 +2,7 @@
 # Description: Sample script to show how to use the templates
 # Version: 99.99.99
 # Arguments: 
-#   - URL
+#   - PARAMETER
 #   - ANOTHER_PARAMETER
 #   - THERE_ARE
 #   - NO_LIMITS
@@ -17,7 +17,7 @@
 # The shared library is just designed to play nice with the parent CLI
 # v
 # Using shared lib, import and validate arguments
-list = ["URL", "ANOTHER_PARAMETER", "THERE_ARE", "NO_LIMITS"] 
+list = ["PARAMETER", "ANOTHER_PARAMETER", "THERE_ARE", "NO_LIMITS"] 
 from lib.args import args
 args = args(list)
 ##########################################################################################
