@@ -79,9 +79,9 @@ pub fn run_table_app(
 fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
     let full_width = f.size().width - 2;
 
+    // Padding used for scaling columns correctly
     let cell_1 = 5;
     let cell_2 = 25;
-
     let padding = 2;
 
     let rects = Layout::default()

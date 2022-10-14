@@ -1,3 +1,3 @@
 pub mod structs;
-pub mod ui;
+pub mod select_ui;
 pub mod utils;
