@@ -106,13 +106,13 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
     let rects = Layout::default()
         .constraints([Constraint::Length(full_width)].as_ref())
         .split(f.size());
-
     
     let normal_style = Style::default().bg(Color::White);
 
-    let header_cells = ["Script", "Status", "Output"];
+    let header_cells = ["Script", "Status", "Output"]
+        .iter()
+        .map(|h| Cell::from(*h).style(Style::default().fg(Color::Black)));
     let header = Row::new(header_cells).style(normal_style).height(1);
-
     
     let rows = app.scripts.values().map(|script| {
 

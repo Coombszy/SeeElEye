@@ -62,7 +62,7 @@ pub fn load_scripts(file_dir: String) -> Vec<Script> {
         .unwrap()
         .map(|file| file.unwrap().path().to_str().unwrap().to_string())
         .collect::<Vec<String>>();
-    files.retain(|file| file.contains(".py"));
+    files.retain(|file| file.contains(".py") && !file.contains(".swp"));
 
     // Return file paths mapped to vec<Script>
     files.iter().map(load_script).collect()

@@ -5,7 +5,6 @@ use std::process::exit;
 use std::str::from_utf8;
 use std::sync::mpsc::Receiver;
 use std::thread;
-use std::time::Duration;
 
 mod libs;
 use libs::{select_ui, execution_ui};
@@ -102,7 +101,7 @@ fn main() -> Result<(), io::Error> {
 
     let mut terminal = execution_ui::create_terminal().unwrap();
     // Use chooses what scripts to be ran
-    let mut app = execution_ui::TableApp::new(rx, scripts);
+    let app = execution_ui::TableApp::new(rx, scripts);
     execution_ui::run_table_app(&mut terminal, app).expect("Failed to return scripts from ui");
     execution_ui::restore_terminal(&mut terminal).unwrap();
 
