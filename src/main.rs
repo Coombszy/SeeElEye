@@ -36,7 +36,11 @@ fn main() -> Result<(), io::Error> {
     // Write arguments to user
 
     println!("With the current selected scripts, the follow arguments are required:");
-    let mut arg_list: Vec<String> = arguments.clone().into_keys().map(|arg| format!(" - {}", arg)).collect();
+    let mut arg_list: Vec<String> = arguments
+        .clone()
+        .into_keys()
+        .map(|arg| format!(" - {}", arg))
+        .collect();
     arg_list.sort();
     println!("{}\n", arg_list.join("\n"));
     // Get arguments from user
@@ -46,7 +50,9 @@ fn main() -> Result<(), io::Error> {
     ordered_arg_list.sort();
     for arg in ordered_arg_list {
         println!("{}:", arg);
-        let arg_val = arguments.get_mut(&arg).expect("Could not get arg value from dict");
+        let arg_val = arguments
+            .get_mut(&arg)
+            .expect("Could not get arg value from dict");
         let mut new_val = String::new();
         stdin().read_line(&mut new_val).unwrap();
         *arg_val = new_val.trim().to_string();
@@ -57,7 +63,6 @@ fn main() -> Result<(), io::Error> {
     for script in scripts {
         println!("DEBUG: {:?}", script);
     }
-
 
     Ok(())
 }
