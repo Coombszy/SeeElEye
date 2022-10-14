@@ -1,9 +1,9 @@
 use std::{
     fs::{self, File},
-    io::{BufRead, BufReader},
+    io::{BufRead, BufReader}, thread::JoinHandle, sync::mpsc::{self, Sender, Receiver},
 };
 
-use super::structs::Script;
+use super::structs::{Script, ScriptState, ScriptRuntime};
 
 /// Creates a script object from given filepath
 /// Does not validate.
@@ -63,4 +63,20 @@ pub fn load_scripts(file_dir: String) -> Vec<Script> {
 
     // Return file paths mapped to vec<Script>
     files.iter().map(load_script).collect()
+}
+
+/// Creates a vector of all script runtimes that need to be
+/// started. Returns channel receiver and vector.
+pub fn create_runtimes(scripts: Vec<Script>) -> (Vec<ScriptRuntime>, Receiver<ScriptState>) {
+    // Create communication channel
+    let (tx, rx): (Sender<ScriptState>, Receiver<ScriptState>) = mpsc::channel();
+
+    // create vector of script runtimes
+    let mut runtimes: Vec<ScriptRuntime> = Vec::new();
+    for script in scripts {
+        let sr: ScriptRuntime = ScriptRuntime{ script: script, handle: None, transmitter: tx.clone() };
+        runtimes.push(sr);
+    }
+
+    return (runtimes, rx);
 }

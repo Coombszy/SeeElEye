@@ -1,4 +1,6 @@
-#[derive(Debug)]
+use std::{thread::JoinHandle, sync::mpsc::Sender};
+
+#[derive(Debug, Clone)]
 pub struct Script {
     pub title: Option<String>,
     pub description: Option<String>,
@@ -36,4 +38,26 @@ impl Script {
     pub fn is_argument(content: &str) -> bool {
         content.contains("Arguments:")
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum Status {
+    STARTING,
+    RUNNING,
+    FINISHED,
+    FAILED
+}
+
+#[derive(Debug, Clone)]
+pub struct ScriptState {
+    pub script: Script,
+    pub status: Status,
+    pub output: String,
+}
+
+#[derive(Debug)]
+pub struct ScriptRuntime {
+    pub script: Script,
+    pub handle: Option<JoinHandle<()>>,
+    pub transmitter: Sender<ScriptState>
 }
