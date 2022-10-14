@@ -12,13 +12,13 @@ use std::{
 use tui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Layout},
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     widgets::{Block, Borders, Cell, Row, Table, TableState},
     Frame, Terminal,
 };
 use uuid::Uuid;
 
-use super::structs::{Script, ScriptRuntime, ScriptState};
+use super::structs::{Script, ScriptState};
 
 /// Create terminal with default config
 pub fn create_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>, io::Error> {
@@ -59,11 +59,11 @@ pub fn run_table_app(
         // and loads it into the states hashmap
         match app.receiver.try_recv() {
             Ok(state) => {
-                if app.states.contains_key(&state.script.uuid) {
+                if let std::collections::hash_map::Entry::Vacant(e) = app.states.entry(state.script.uuid) {
+                    e.insert(state);
+                } else {
                     let s = app.states.get_mut(&state.script.uuid).unwrap();
                     *s = state;
-                } else {
-                    app.states.insert(state.script.uuid, state);
                 }
             }
             _ => (),

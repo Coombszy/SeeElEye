@@ -91,16 +91,16 @@ fn main() -> Result<(), io::Error> {
             let output =
                 run_script(&r.script, &r.arguments).expect("Failed to get script execution result");
             if output.status.success() {
-                let data = format!("{}", from_utf8(&output.stdout).unwrap().trim());
+                let data = from_utf8(&output.stdout).unwrap().trim().to_string();
                 state.status = Status::SUCCESS;
                 state.output = Some(data);
             } else {
-                let data = format!("{}", from_utf8(&output.stderr).unwrap().trim());
+                let data = from_utf8(&output.stderr).unwrap().trim().to_string();
                 state.status = Status::FAILED;
                 state.output = Some(data);
             }
             r.transmitter
-                .send(state.clone())
+                .send(state)
                 .expect("Failed to transmit script state");
         });
 

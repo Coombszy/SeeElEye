@@ -3,7 +3,6 @@ use std::{
     fs::{self, File},
     io::{BufRead, BufReader},
     sync::mpsc::{self, Receiver, Sender},
-    thread::JoinHandle,
 };
 
 use uuid::Uuid;
@@ -84,7 +83,7 @@ pub fn create_runtimes(
     let mut runtimes: Vec<ScriptRuntime> = Vec::new();
     for script in scripts {
         let sr: ScriptRuntime = ScriptRuntime {
-            script: script,
+            script,
             arguments: arguments.clone(),
             handle: None,
             transmitter: tx.clone(),
@@ -92,5 +91,5 @@ pub fn create_runtimes(
         runtimes.push(sr);
     }
 
-    return (runtimes, rx);
+    (runtimes, rx)
 }
