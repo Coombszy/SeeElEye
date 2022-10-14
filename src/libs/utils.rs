@@ -3,6 +3,8 @@ use std::{
     io::{BufRead, BufReader}, thread::JoinHandle, sync::mpsc::{self, Sender, Receiver}, collections::HashMap,
 };
 
+use uuid::Uuid;
+
 use super::structs::{Script, ScriptState, ScriptRuntime};
 
 /// Creates a script object from given filepath
@@ -18,6 +20,7 @@ fn load_script(file_path: &String) -> Script {
         arguments: vec![],
         script_location: None,
         enabled: false,
+        uuid: Uuid::new_v4()
     };
 
     let mut arg_processing = false;

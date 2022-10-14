@@ -4,8 +4,6 @@
 # Arguments: 
 #   - PARAMETER
 #   - ANOTHER_PARAMETER
-#   - THERE_ARE
-#   - NO_LIMITS
 ##########################################################################################
 # ^
 # The format here must be respected, this is so that metadata can be read by the parent CLI. It should be 90 hashtags
@@ -17,7 +15,7 @@
 # The shared library is just designed to play nice with the parent CLI
 # v
 # Using shared lib, import and validate arguments
-list = ["PARAMETER", "ANOTHER_PARAMETER", "THERE_ARE", "NO_LIMITS"] 
+list = ["PARAMETER", "ANOTHER_PARAMETER"] 
 from lib.args import args
 args = args(list)
 ##########################################################################################

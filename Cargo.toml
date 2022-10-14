@@ -10,3 +10,4 @@ serde = { version = "1.0", features = ["derive"] }
 tui = { version = "0.19.0", features = ["crossterm", "serde"]}
 crossterm = { version = "0.25.0", features = [ "serde" ] }
 clearscreen = "1.0.10"
+uuid = {version = "1.2.1", features = ["v4", "fast-rng", "macro-diagnostics"]}

@@ -10,6 +10,6 @@ from lib.args import args
 args = args(list)
 ##########################################################################################
 import time
-time.sleep(int(args["FAKE_TIME"]))
+time.sleep(float(args["FAKE_TIME"]))
 print("Wait finished!")
 exit(0)

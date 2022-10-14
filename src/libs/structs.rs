@@ -1,5 +1,7 @@
 use std::{thread::JoinHandle, sync::mpsc::Sender, collections::HashMap};
 
+use uuid::Uuid;
+
 #[derive(Debug, Clone)]
 pub struct Script {
     pub title: Option<String>,
@@ -8,6 +10,7 @@ pub struct Script {
     pub arguments: Vec<String>,
     pub script_location: Option<String>,
     pub enabled: bool,
+    pub uuid: Uuid
 }
 
 impl Script {

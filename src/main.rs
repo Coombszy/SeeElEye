@@ -8,7 +8,7 @@ use std::thread;
 use std::time::Duration;
 
 mod libs;
-use libs::select_ui::{create_terminal, restore_terminal, run_table_app, TableApp};
+use libs::{select_ui, execution_ui};
 use libs::utils::load_scripts;
 use libs::structs::Status;
 
@@ -20,12 +20,12 @@ fn main() -> Result<(), io::Error> {
 
     validate_python();
 
-    let mut terminal = create_terminal().unwrap();
+    let mut terminal = select_ui::create_terminal().unwrap();
     // Use chooses what scripts to be ran
-    let mut app = TableApp::new();
+    let mut app = select_ui::TableApp::new();
     app.scripts = load_scripts("./static".to_string());
-    let mut scripts = run_table_app(&mut terminal, app).expect("Failed to return scripts from ui");
-    restore_terminal(&mut terminal).unwrap();
+    let mut scripts = select_ui::run_table_app(&mut terminal, app).expect("Failed to return scripts from ui");
+    select_ui::restore_terminal(&mut terminal).unwrap();
     
     // DEBUGGING ONLY! DELETE ME! ------------------------------------------------------------------------------
     // let mut scripts = load_scripts("./static".to_string());
@@ -75,7 +75,7 @@ fn main() -> Result<(), io::Error> {
     }
 
     // Get all script runtimes and receiver
-    let (runtimes, rx): (Vec<ScriptRuntime>, Receiver<ScriptState>) = create_runtimes(scripts, arguments);
+    let (runtimes, rx): (Vec<ScriptRuntime>, Receiver<ScriptState>) = create_runtimes(scripts.clone(), arguments);
 
     for mut r in runtimes {
         let handle = thread::spawn(move || {
@@ -94,20 +94,17 @@ fn main() -> Result<(), io::Error> {
                 state.output = Some(data);
             }
             r.transmitter.send(state.clone()).expect("Failed to transmit script state");
-
         });
 
         r.handle = Some(handle);
 
     }
 
-    for received in rx {
-        let output = match received.output {
-            Some(e) => e,
-            _ => "".to_string()
-        };
-        println!("Script: {} | Status: {:?} | Output: {} ", received.script.title.unwrap(), received.status, output);
-    }
+    let mut terminal = execution_ui::create_terminal().unwrap();
+    // Use chooses what scripts to be ran
+    let mut app = execution_ui::TableApp::new(rx, scripts);
+    execution_ui::run_table_app(&mut terminal, app).expect("Failed to return scripts from ui");
+    execution_ui::restore_terminal(&mut terminal).unwrap();
 
     Ok(())
 }
