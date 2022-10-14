@@ -1,11 +1,13 @@
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers, poll},
+    event::{self, poll, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use uuid::Uuid;
 use std::{
-    io::{self, Stdout}, sync::mpsc::Receiver, collections::HashMap, time::Duration,
+    collections::HashMap,
+    io::{self, Stdout},
+    sync::mpsc::Receiver,
+    time::Duration,
 };
 use tui::{
     backend::{Backend, CrosstermBackend},
@@ -14,8 +16,9 @@ use tui::{
     widgets::{Block, Borders, Cell, Row, Table, TableState},
     Frame, Terminal,
 };
+use uuid::Uuid;
 
-use super::structs::{Script, ScriptState, ScriptRuntime};
+use super::structs::{Script, ScriptRuntime, ScriptState};
 
 /// Create terminal with default config
 pub fn create_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>, io::Error> {
@@ -52,22 +55,19 @@ pub fn run_table_app(
     mut app: TableApp,
 ) -> io::Result<Vec<Script>> {
     loop {
-
         // Reads data from threads channel
         // and loads it into the states hashmap
         match app.receiver.try_recv() {
             Ok(state) => {
                 if app.states.contains_key(&state.script.uuid) {
-                    let s = app.states.get_mut(&state.script.uuid).unwrap() ;
+                    let s = app.states.get_mut(&state.script.uuid).unwrap();
                     *s = state;
-                }
-                else {
+                } else {
                     app.states.insert(state.script.uuid, state);
                 }
-            },
-            _ => ()
+            }
+            _ => (),
         }
-
 
         terminal.draw(|f| table_ui(f, &mut app))?;
 
@@ -106,42 +106,40 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
     let rects = Layout::default()
         .constraints([Constraint::Length(full_width)].as_ref())
         .split(f.size());
-    
+
     let normal_style = Style::default().bg(Color::White);
 
     let header_cells = ["Script", "Status", "Output"]
         .iter()
         .map(|h| Cell::from(*h).style(Style::default().fg(Color::Black)));
     let header = Row::new(header_cells).style(normal_style).height(1);
-    
-    let rows = app.scripts.values().map(|script| {
 
+    let rows = app.scripts.values().map(|script| {
         // Create status and output
         // Handles if no state has been ingested yet
         let status = match app.states.get(&script.uuid) {
-            Some(script) => { 
+            Some(script) => {
                 format!("{:?}", script.status)
-            },
-            _ => "UNKNOWN".to_string()
+            }
+            _ => "UNKNOWN".to_string(),
         };
         let output = match app.states.get(&script.uuid) {
-            Some(script) => { match script.output.clone() {
-                    Some(output) => output,
-                    _ => "".to_string()
-                }
+            Some(script) => match script.output.clone() {
+                Some(output) => output,
+                _ => "".to_string(),
             },
-            _ => "".to_string()
+            _ => "".to_string(),
         };
 
         let f_script = format(script.title.clone().unwrap(), cell_1 - padding);
 
         let dynamic_size: u16 = f.size().width - (cell_1 + cell_2 + padding);
-        let f_output = format(output, dynamic_size - padding );
+        let f_output = format(output, dynamic_size - padding);
 
         let cells = vec![
-            Cell::from(f_script.0), 
-            Cell::from(status), 
-            Cell::from(f_output.0), 
+            Cell::from(f_script.0),
+            Cell::from(status),
+            Cell::from(f_output.0),
         ];
 
         // Use the bigger cell height
@@ -151,8 +149,7 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
             Row::new(cells).height(f_output.1 + 1)
         }
     });
-        
-        
+
     let constraints = [
         Constraint::Length(cell_1),
         Constraint::Length(cell_2),
@@ -195,7 +192,7 @@ pub struct TableApp {
     state: TableState,
     pub receiver: Receiver<ScriptState>,
     pub scripts: HashMap<Uuid, Script>,
-    pub states: HashMap<Uuid, ScriptState>
+    pub states: HashMap<Uuid, ScriptState>,
 }
 
 impl TableApp {
@@ -203,8 +200,11 @@ impl TableApp {
         TableApp {
             state: TableState::default(),
             receiver: rx,
-            scripts: s.iter().map(|script| (script.uuid, script.clone()) ).collect(),
-            states: HashMap::new()
+            scripts: s
+                .iter()
+                .map(|script| (script.uuid, script.clone()))
+                .collect(),
+            states: HashMap::new(),
         }
     }
     // pub fn next(&mut self) {

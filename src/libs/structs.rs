@@ -1,4 +1,4 @@
-use std::{thread::JoinHandle, sync::mpsc::Sender, collections::HashMap};
+use std::{collections::HashMap, sync::mpsc::Sender, thread::JoinHandle};
 
 use uuid::Uuid;
 
@@ -10,7 +10,7 @@ pub struct Script {
     pub arguments: Vec<String>,
     pub script_location: Option<String>,
     pub enabled: bool,
-    pub uuid: Uuid
+    pub uuid: Uuid,
 }
 
 impl Script {
@@ -47,7 +47,7 @@ impl Script {
 pub enum Status {
     RUNNING,
     SUCCESS,
-    FAILED
+    FAILED,
 }
 
 #[derive(Debug, Clone)]
@@ -62,5 +62,5 @@ pub struct ScriptRuntime {
     pub script: Script,
     pub arguments: HashMap<String, String>,
     pub handle: Option<JoinHandle<()>>,
-    pub transmitter: Sender<ScriptState>
+    pub transmitter: Sender<ScriptState>,
 }

@@ -1,11 +1,14 @@
 use std::{
+    collections::HashMap,
     fs::{self, File},
-    io::{BufRead, BufReader}, thread::JoinHandle, sync::mpsc::{self, Sender, Receiver}, collections::HashMap,
+    io::{BufRead, BufReader},
+    sync::mpsc::{self, Receiver, Sender},
+    thread::JoinHandle,
 };
 
 use uuid::Uuid;
 
-use super::structs::{Script, ScriptState, ScriptRuntime};
+use super::structs::{Script, ScriptRuntime, ScriptState};
 
 /// Creates a script object from given filepath
 /// Does not validate.
@@ -20,7 +23,7 @@ fn load_script(file_path: &String) -> Script {
         arguments: vec![],
         script_location: None,
         enabled: false,
-        uuid: Uuid::new_v4()
+        uuid: Uuid::new_v4(),
     };
 
     let mut arg_processing = false;
@@ -70,14 +73,22 @@ pub fn load_scripts(file_dir: String) -> Vec<Script> {
 
 /// Creates a vector of all script runtimes that need to be
 /// started. Returns channel receiver and vector.
-pub fn create_runtimes(scripts: Vec<Script>, arguments: HashMap<String, String>) -> (Vec<ScriptRuntime>, Receiver<ScriptState>) {
+pub fn create_runtimes(
+    scripts: Vec<Script>,
+    arguments: HashMap<String, String>,
+) -> (Vec<ScriptRuntime>, Receiver<ScriptState>) {
     // Create communication channel
     let (tx, rx): (Sender<ScriptState>, Receiver<ScriptState>) = mpsc::channel();
 
     // create vector of script runtimes
     let mut runtimes: Vec<ScriptRuntime> = Vec::new();
     for script in scripts {
-        let sr: ScriptRuntime = ScriptRuntime{ script: script, arguments: arguments.clone(), handle: None, transmitter: tx.clone() };
+        let sr: ScriptRuntime = ScriptRuntime {
+            script: script,
+            arguments: arguments.clone(),
+            handle: None,
+            transmitter: tx.clone(),
+        };
         runtimes.push(sr);
     }
 

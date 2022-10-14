@@ -7,25 +7,25 @@ use std::sync::mpsc::Receiver;
 use std::thread;
 
 mod libs;
-use libs::{select_ui, execution_ui};
-use libs::utils::load_scripts;
 use libs::structs::Status;
+use libs::utils::load_scripts;
+use libs::{execution_ui, select_ui};
 
-use crate::libs::python::{validate_python, run_script};
+use crate::libs::python::{run_script, validate_python};
 use crate::libs::structs::{ScriptRuntime, ScriptState};
 use crate::libs::utils::create_runtimes;
 
 fn main() -> Result<(), io::Error> {
-
     validate_python();
 
     let mut terminal = select_ui::create_terminal().unwrap();
     // Use chooses what scripts to be ran
     let mut app = select_ui::TableApp::new();
     app.scripts = load_scripts("./static".to_string());
-    let mut scripts = select_ui::run_table_app(&mut terminal, app).expect("Failed to return scripts from ui");
+    let mut scripts =
+        select_ui::run_table_app(&mut terminal, app).expect("Failed to return scripts from ui");
     select_ui::restore_terminal(&mut terminal).unwrap();
-    
+
     // DEBUGGING ONLY! DELETE ME! ------------------------------------------------------------------------------
     // let mut scripts = load_scripts("./static".to_string());
     // scripts[0].enabled = true; // Set first one to be enabled, no idea which one :)
@@ -74,29 +74,37 @@ fn main() -> Result<(), io::Error> {
     }
 
     // Get all script runtimes and receiver
-    let (runtimes, rx): (Vec<ScriptRuntime>, Receiver<ScriptState>) = create_runtimes(scripts.clone(), arguments);
+    let (runtimes, rx): (Vec<ScriptRuntime>, Receiver<ScriptState>) =
+        create_runtimes(scripts.clone(), arguments);
 
     for mut r in runtimes {
         let handle = thread::spawn(move || {
-            let mut state = ScriptState { script: r.script.clone(), status: Status::RUNNING, output: None};
-            r.transmitter.send(state.clone()).expect("Failed to transmit script state");
-            
-            let output = run_script(&r.script, &r.arguments).expect("Failed to get script execution result");
+            let mut state = ScriptState {
+                script: r.script.clone(),
+                status: Status::RUNNING,
+                output: None,
+            };
+            r.transmitter
+                .send(state.clone())
+                .expect("Failed to transmit script state");
+
+            let output =
+                run_script(&r.script, &r.arguments).expect("Failed to get script execution result");
             if output.status.success() {
                 let data = format!("{}", from_utf8(&output.stdout).unwrap().trim());
                 state.status = Status::SUCCESS;
                 state.output = Some(data);
-            }
-            else {
+            } else {
                 let data = format!("{}", from_utf8(&output.stderr).unwrap().trim());
                 state.status = Status::FAILED;
                 state.output = Some(data);
             }
-            r.transmitter.send(state.clone()).expect("Failed to transmit script state");
+            r.transmitter
+                .send(state.clone())
+                .expect("Failed to transmit script state");
         });
 
         r.handle = Some(handle);
-
     }
 
     let mut terminal = execution_ui::create_terminal().unwrap();
