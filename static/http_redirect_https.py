@@ -32,9 +32,12 @@ if response.history:
         hop_url = response.url
         hop_status = hop.status_code
 
-if redirect:
+if redirect and "https" in hop_url:
     print(f"{target_url} --{hop_status}--> {hop_url}")
     exit(0)
-else:
-    exit(1)
+elif redirect:
+    print(f"{target_url} --{hop_status}--> {hop_url} (Not HTTPS)")
+
+# Catch all as failure
+exit(1)
 

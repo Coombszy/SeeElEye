@@ -86,13 +86,16 @@ fn main() -> Result<(), io::Error> {
             let output =
                 run_script(&r.script, &r.arguments).expect("Failed to get script execution result");
             if output.status.success() {
+                // Get stdout
                 let data = from_utf8(&output.stdout).unwrap().trim().to_string();
                 state.status = Status::SUCCESS;
                 state.output = Some(data);
             } else {
-                let data = from_utf8(&output.stderr).unwrap().trim().to_string();
+                // Get both stdout and stderr
+                let data_out = from_utf8(&output.stdout).unwrap().trim().to_string();
+                let data_err = from_utf8(&output.stderr).unwrap().trim().to_string();
                 state.status = Status::FAILED;
-                state.output = Some(data);
+                state.output = Some(format!("{}\n{}", data_out, data_err).trim().to_string());
             }
             r.transmitter
                 .send(state)
