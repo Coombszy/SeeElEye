@@ -2,8 +2,8 @@
 # Description: Sample script to show how to use the templates
 # Version: 99.99.99
 # Arguments: 
-#   - PARAMETER
-#   - ANOTHER_PARAMETER
+#   - PARAM1
+#   - PARAM2
 ##########################################################################################
 # ^
 # The format here must be respected, this is so that metadata can be read by the parent CLI. It should be 90 hashtags
@@ -15,20 +15,11 @@
 # The shared library is just designed to play nice with the parent CLI
 # v
 # Using shared lib, import and validate arguments
-list = ["PARAMETER", "ANOTHER_PARAMETER"] 
+list = ["PARAM1", "PARAM2"]
 from lib.args import args
 args = args(list)
 ##########################################################################################
 # From this point onwards, write your script to do whatever you want
-import requests
-
-target_url = args["URL"]
-print(f"Target URL: {target_url}")
-
-page = requests.get(target_url)
-
-print(page)
-
-
-
+print(f"PARAMETER: {args['PARAM1']}, ANOTHER_PARAMETER: {args['PARAM2']}")
+exit(0)
 

@@ -25,11 +25,6 @@ fn main() -> Result<(), io::Error> {
     let mut scripts =
         select_ui::run_table_app(&mut terminal, app).expect("Failed to return scripts from ui");
     select_ui::restore_terminal(&mut terminal).unwrap();
-
-    // DEBUGGING ONLY! DELETE ME! ------------------------------------------------------------------------------
-    // let mut scripts = load_scripts("./static".to_string());
-    // scripts[0].enabled = true; // Set first one to be enabled, no idea which one :)
-
     clearscreen::clear().expect("Failed to clear terminal");
 
     // Filter scripts to only enabled and get all arguments

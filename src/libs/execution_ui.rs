@@ -7,7 +7,7 @@ use std::{
     collections::HashMap,
     io::{self, Stdout},
     sync::mpsc::Receiver,
-    time::Duration,
+    time::Duration, vec,
 };
 use tui::{
     backend::{Backend, CrosstermBackend},
@@ -71,7 +71,7 @@ pub fn run_table_app(
 
         terminal.draw(|f| table_ui(f, &mut app))?;
 
-        if poll(Duration::from_millis(100))? {
+        if poll(Duration::from_millis(1000))? {
             if let Event::Key(key) = event::read()? {
                 if key.modifiers == KeyModifiers::CONTROL {
                     match key.code {
@@ -96,12 +96,14 @@ pub fn run_table_app(
 
 /// Controls ui for app
 fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
-    let full_width = f.size().width - 2;
 
     // Padding used for scaling columns correctly
     let cell_1 = 25;
     let cell_2 = 10;
     let padding = 2;
+    let full_width = f.size().width - padding;
+    let dynamic_size: u16 = full_width - (cell_1 + cell_2);
+    let max_lines = 8;
 
     let rects = Layout::default()
         .constraints([Constraint::Length(full_width)].as_ref())
@@ -121,7 +123,7 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
             Some(script) => {
                 format!("{:?}", script.status)
             }
-            _ => "UNKNOWN".to_string(),
+            _ => "STARTING".to_string(),
         };
         let output = match app.states.get(&script.uuid) {
             Some(script) => match script.output.clone() {
@@ -132,9 +134,7 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
         };
 
         let f_script = format(script.title.clone().unwrap(), cell_1 - padding);
-
-        let dynamic_size: u16 = f.size().width - (cell_1 + cell_2 + padding);
-        let f_output = format(output, dynamic_size - padding);
+        let f_output = multiline_format(output, dynamic_size - padding, max_lines);
 
         let cells = vec![
             Cell::from(f_script.0),
@@ -143,7 +143,11 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
         ];
 
         // Use the bigger cell height
-        if f_script.1 > f_output.1 {
+        // But cap it
+        if f_script.1 > max_lines || f_output.1 > max_lines {
+            Row::new(cells).height(max_lines)
+        }
+        else if f_script.1 > f_output.1 {
             Row::new(cells).height(f_script.1 + 1)
         } else {
             Row::new(cells).height(f_output.1 + 1)
@@ -153,8 +157,9 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
     let constraints = [
         Constraint::Length(cell_1),
         Constraint::Length(cell_2),
-        Constraint::Length(full_width),
+        Constraint::Length(dynamic_size),
     ];
+
 
     let t = Table::new(rows)
         .header(header)
@@ -184,6 +189,27 @@ fn format(content: String, limit: u16) -> (String, u16) {
     (formatted.to_string(), splits)
 }
 
+/// Splits the content of a multiline string based on the limit and /n.
+/// Returns a tuple of the splis string and the number of splits rquired
+fn multiline_format(content: String, limit: u16, lines_limit: u16) -> (String, u16) {
+    let mut split_vec: Vec<String> = content.split("\n").map(|s| s.to_string() ).collect();
+    let mut total_splits: u16  = split_vec.len() as u16 - 1; // offset by 1
+    
+    for split in split_vec.iter_mut() {
+        let (c, x) = format(split.clone().to_string(), limit);
+        *split = c;
+        total_splits += x;
+    }
+
+    if split_vec.len() as u16 > lines_limit {
+
+        (split_vec[split_vec.len() - (lines_limit as usize)..].join("\n"), lines_limit)
+    }
+    else {
+        (split_vec.join("\n"), total_splits)
+    }
+}
+
 ////////////////////////////////////////////
 // Structs/Impls
 ////////////////////////////////////////////
@@ -207,37 +233,5 @@ impl TableApp {
             states: HashMap::new(),
         }
     }
-    // pub fn next(&mut self) {
-    //     let i = match self.state.selected() {
-    //         Some(i) => {
-    //             if i >= self.scripts.len() - 1 {
-    //                 0
-    //             } else {
-    //                 i + 1
-    //             }
-    //         }
-    //         None => 0,
-    //     };
-    //     self.state.select(Some(i));
-    // }
-
-    // pub fn previous(&mut self) {
-    //     let i = match self.state.selected() {
-    //         Some(i) => {
-    //             if i == 0 {
-    //                 self.scripts.len() - 1
-    //             } else {
-    //                 i - 1
-    //             }
-    //         }
-    //         None => 0,
-    //     };
-    //     self.state.select(Some(i));
-    // }
-
-    // pub fn toggle(&mut self) {
-    //     if let Some(i) = self.state.selected() {
-    //         self.scripts[i].enabled = !self.scripts[i].enabled
-    //     }
-    // }
 }
+

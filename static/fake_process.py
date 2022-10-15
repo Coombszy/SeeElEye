@@ -5,7 +5,7 @@
 #   - FAKE_TIME
 ##########################################################################################
 # Using shared lib, import and validate arguments
-list = ["FAKE_TIME"] 
+list = ["FAKE_TIME"]
 from lib.args import args
 args = args(list)
 ##########################################################################################
@@ -13,3 +13,4 @@ import time
 time.sleep(float(args["FAKE_TIME"]))
 print("Wait finished!")
 exit(0)
+

@@ -23,4 +23,3 @@ print(f"Target URL: {target_url}")
 
 page = requests.get(target_url)
 
-print(page)

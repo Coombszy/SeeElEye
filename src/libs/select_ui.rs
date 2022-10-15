@@ -64,6 +64,8 @@ pub fn run_table_app(
                     KeyCode::Down => app.next(),
                     KeyCode::Up => app.previous(),
                     KeyCode::Char(' ') => app.toggle(),
+                    KeyCode::Char('a') => app.select_all(),
+                    KeyCode::Char('n') => app.deselect_all(),
                     KeyCode::Enter => return Ok(app.scripts),
                     _ => {}
                 }
@@ -202,4 +204,21 @@ impl TableApp {
             self.scripts[i].enabled = !self.scripts[i].enabled
         }
     }
+
+    pub fn select_all(&mut self) {
+        let scripts = &mut self.scripts;
+        for mut script in scripts {
+            script.enabled = true;
+        }
+    }
+
+    pub fn deselect_all(&mut self) {
+        let scripts = &mut self.scripts;
+        for mut script in scripts {
+            script.enabled = false;
+        }
+    }
+
 }
+
+
