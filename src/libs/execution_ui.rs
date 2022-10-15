@@ -54,7 +54,7 @@ pub fn exit(terminal: &mut Terminal<CrosstermBackend<Stdout>>) {
 pub fn run_table_app(
     terminal: &mut Terminal<CrosstermBackend<Stdout>>,
     mut app: TableApp,
-) -> io::Result<Vec<Script>> {
+) -> io::Result<()> {
     loop {
         // Reads data from threads channel
         // and loads it into the states hashmap
@@ -83,8 +83,8 @@ pub fn run_table_app(
                     }
                 } else {
                     match key.code {
-                        KeyCode::Char('q') => exit(terminal),
-                        KeyCode::Esc => exit(terminal),
+                        KeyCode::Char('q') => break,
+                        KeyCode::Esc => break,
                         // KeyCode::Down => app.next(),
                         // KeyCode::Up => app.previous(),
                         // KeyCode::Char(' ') => app.toggle(),
@@ -95,6 +95,7 @@ pub fn run_table_app(
             }
         }
     }
+    Ok(())
 }
 
 /// Controls ui for app
