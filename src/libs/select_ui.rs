@@ -218,7 +218,4 @@ impl TableApp {
             script.enabled = false;
         }
     }
-
 }
-
-

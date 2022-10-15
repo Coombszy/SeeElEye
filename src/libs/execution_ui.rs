@@ -7,7 +7,8 @@ use std::{
     collections::HashMap,
     io::{self, Stdout},
     sync::mpsc::Receiver,
-    time::Duration, vec,
+    time::Duration,
+    vec,
 };
 use tui::{
     backend::{Backend, CrosstermBackend},
@@ -59,7 +60,9 @@ pub fn run_table_app(
         // and loads it into the states hashmap
         match app.receiver.try_recv() {
             Ok(state) => {
-                if let std::collections::hash_map::Entry::Vacant(e) = app.states.entry(state.script.uuid) {
+                if let std::collections::hash_map::Entry::Vacant(e) =
+                    app.states.entry(state.script.uuid)
+                {
                     e.insert(state);
                 } else {
                     let s = app.states.get_mut(&state.script.uuid).unwrap();
@@ -96,7 +99,6 @@ pub fn run_table_app(
 
 /// Controls ui for app
 fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
-
     // Padding used for scaling columns correctly
     let cell_1 = 25;
     let cell_2 = 10;
@@ -146,8 +148,7 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
         // But cap it
         if f_script.1 > max_lines || f_output.1 > max_lines {
             Row::new(cells).height(max_lines)
-        }
-        else if f_script.1 > f_output.1 {
+        } else if f_script.1 > f_output.1 {
             Row::new(cells).height(f_script.1 + 1)
         } else {
             Row::new(cells).height(f_output.1 + 1)
@@ -159,7 +160,6 @@ fn table_ui<B: Backend>(f: &mut Frame<B>, app: &mut TableApp) {
         Constraint::Length(cell_2),
         Constraint::Length(dynamic_size),
     ];
-
 
     let t = Table::new(rows)
         .header(header)
@@ -192,9 +192,9 @@ fn format(content: String, limit: u16) -> (String, u16) {
 /// Splits the content of a multiline string based on the limit and /n.
 /// Returns a tuple of the splis string and the number of splits rquired
 fn multiline_format(content: String, limit: u16, lines_limit: u16) -> (String, u16) {
-    let mut split_vec: Vec<String> = content.split("\n").map(|s| s.to_string() ).collect();
-    let mut total_splits: u16  = split_vec.len() as u16 - 1; // offset by 1
-    
+    let mut split_vec: Vec<String> = content.split('\n').map(|s| s.to_string()).collect();
+    let mut total_splits: u16 = split_vec.len() as u16 - 1; // offset by 1
+
     for split in split_vec.iter_mut() {
         let (c, x) = format(split.clone().to_string(), limit);
         *split = c;
@@ -202,10 +202,11 @@ fn multiline_format(content: String, limit: u16, lines_limit: u16) -> (String, u
     }
 
     if split_vec.len() as u16 > lines_limit {
-
-        (split_vec[split_vec.len() - (lines_limit as usize)..].join("\n"), lines_limit)
-    }
-    else {
+        (
+            split_vec[split_vec.len() - (lines_limit as usize)..].join("\n"),
+            lines_limit,
+        )
+    } else {
         (split_vec.join("\n"), total_splits)
     }
 }
@@ -234,4 +235,3 @@ impl TableApp {
         }
     }
 }
-
