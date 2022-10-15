@@ -110,6 +110,7 @@ fn main() -> Result<(), io::Error> {
     let app = execution_ui::TableApp::new(rx, scripts);
     execution_ui::run_table_app(&mut terminal, app).expect("Failed to return scripts from ui");
     execution_ui::restore_terminal(&mut terminal).unwrap();
+    clearscreen::clear().expect("Failed to clear terminal");
 
     Ok(())
 }
